@@ -1,0 +1,6 @@
+# Vendored ffmpeg binary (77 MB) is built per machine, never committed.
+models/*/ffmpeg
+# Test outputs
+*.mp3
+*.wav
+__pycache__/

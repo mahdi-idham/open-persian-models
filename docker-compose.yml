@@ -1,0 +1,27 @@
+# Generic GPU TTS stack: builds models/omnivoice, serves :8300.
+# Needs: NVIDIA driver + nvidia-container-toolkit on host, model weights in /models.
+services:
+  tts-worker:
+    image: tts-worker:latest
+    build:
+      context: ./models/omnivoice
+    ports:
+      - "8300:8300"
+    volumes:
+      - /models:/models:ro
+      - ./archive:/archive
+    environment:
+      - ARCHIVE_DIR=/archive
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "localhost:8300/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

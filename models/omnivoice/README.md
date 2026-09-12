@@ -18,3 +18,11 @@
 - متن حداکثر ۱۵۰۰ کاراکتر، حداقل معنادار (متن خیلی کوتاه صدای بی‌کیفیت می‌دهد).
 - هم‌زمانی ۱ (قفل GPU)؛ درخواست‌های هم‌زمان صف می‌شوند.
 - خروجی همیشه MP3 مونو ۶۴کیلوبیت + هدرهای `X-Gen-Ms` و `X-Audio-Seconds`.
+
+## وزن‌های مدل
+
+وزن‌ها داخل ایمیج نیستند؛ از اینجا دانلود کنید و در `/models/tts/omnivoice-q4/` بگذارید:
+
+- [OmniVoice-GGUF on HuggingFace](https://huggingface.co/Serveurperso/OmniVoice-GGUF)
+
+فایل‌های لازم: `omnivoice-base-Q4_K_M.gguf` (مدل) + `omnivoice-tokenizer-Q4_K_M.gguf` (توکنایزر).

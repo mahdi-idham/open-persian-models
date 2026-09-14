@@ -14,12 +14,13 @@
 | مدل | چه کار می‌کند | پوشه |
 |---|---|---|
 | omnivoice | تبدیل متن فارسی به گفتار با چند صدا (زن، مرد، کودک و...) | [models/omnivoice](models/omnivoice) |
+| pocket | تبدیل متن فارسی به گفتار با یک صدا، فقط CPU (بدون گرافیک)، سریع | [models/pocket](models/pocket) |
 
 مدل جدید اضافه شد، همین‌جا در جدول می‌آید. راهنمای افزودن مدل در [قالب](models/_template) است.
 
 ## پیش‌نیازها
 
-- لینوکس با کارت گرافیک NVIDIA (حداقل ۸ گیگ VRAM برای مدل نمونه)
+- لینوکس (برای مدل omnivoice: کارت گرافیک NVIDIA حداقل ۸ گیگ VRAM؛ مدل pocket فقط CPU می‌خواهد)
 - درایور NVIDIA + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 - داکر + Docker Compose
 - فایل وزن‌های مدل (داخل ایمیج نمی‌آید؛ با volume وصل می‌شود)
@@ -40,6 +41,24 @@ docker compose up -d --build
 curl localhost:8300/health
 curl -s localhost:8300/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا","instruct":"female, young adult"}' -o out.mp3
+```
+
+## شروع سریع (مدل pocket، فقط CPU)
+
+```bash
+# ۱. وزن‌ها را جایی روی هاست بگذارید، مثلا:
+/models/tts/pocket-fa/
+
+# ۲. ffmpeg استاتیک را کنار داکرفایل بگذارید (۷۷ مگ، یک بار):
+cd models/pocket && bash get_ffmpeg.sh && cd ../..
+
+# ۳. بیلد و اجرا (بدون نیاز به GPU):
+docker compose up -d --build tts-pocket
+
+# ۴. تست سلامت و تولید صدا:
+curl localhost:8302/health
+curl -s localhost:8302/tts -H 'Content-Type: application/json' \
+  -d '{"text":"سلام دنیا"}' -o out.mp3
 ```
 
 ## چطور کار می‌کند؟

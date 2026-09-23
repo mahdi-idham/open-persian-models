@@ -15,6 +15,7 @@
 |---|---|---|
 | omnivoice | تبدیل متن فارسی به گفتار با چند صدا (زن، مرد، کودک و...) | [models/omnivoice](models/omnivoice) |
 | pocket | تبدیل متن فارسی به گفتار با یک صدا، فقط CPU (بدون گرافیک)، سریع | [models/pocket](models/pocket) |
+| pocket-v2 | تبدیل متن فارسی به گفتار با دو صدا (زن و مرد)، فقط CPU — غیرتجاری | [models/pocket-v2](models/pocket-v2) |
 
 مدل جدید اضافه شد، همین‌جا در جدول می‌آید. راهنمای افزودن مدل در [قالب](models/_template) است.
 
@@ -59,6 +60,28 @@ docker compose up -d --build tts-pocket
 curl localhost:8302/health
 curl -s localhost:8302/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا"}' -o out.mp3
+```
+
+## شروع سریع (مدل pocket-v2، فقط CPU، دو صدا)
+
+```bash
+# ۱. وزن‌ها را جایی روی هاست بگذارید، مثلا:
+/models/tts/pocket-fa-v2/
+# و مدل G2P (تبدیل متن به واج):
+/models/g2p/Homo-GE2PE-Persian-HF/
+
+# ۲. ffmpeg استاتیک را کنار داکرفایل بگذارید (۷۷ مگ، یک بار):
+cd models/pocket-v2 && bash get_ffmpeg.sh && cd ../..
+
+# ۳. بیلد و اجرا (بدون نیاز به GPU):
+docker compose up -d --build tts-pocketv2
+
+# ۴. تست سلامت و تولید صدا (زن و مرد):
+curl localhost:8303/health
+curl -s localhost:8303/tts -H 'Content-Type: application/json' \
+  -d '{"text":"سلام دنیا","voice":"female"}' -o out-f.mp3
+curl -s localhost:8303/tts -H 'Content-Type: application/json' \
+  -d '{"text":"سلام دنیا","voice":"male"}' -o out-m.mp3
 ```
 
 ## چطور کار می‌کند؟

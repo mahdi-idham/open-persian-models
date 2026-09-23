@@ -1,4 +1,5 @@
-# TTS stack: models/omnivoice (GPU, :8300) + models/pocket (CPU, :8302).
+# TTS stack: models/omnivoice (GPU, :8300) + models/pocket (CPU, :8302)
+# + models/pocket-v2 (CPU two voices, :8303, NC weights).
 # Needs: NVIDIA driver + nvidia-container-toolkit on host, model weights in /models.
 services:
   tts-worker:
@@ -44,6 +45,28 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "localhost:8302/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  tts-pocketv2:
+    image: tts-pocketv2-worker:latest
+    build:
+      context: ./models/pocket-v2
+      args:
+        - PIP_PROXY=${PIP_PROXY:-}
+    ports:
+      - "127.0.0.1:8303:8303"
+    volumes:
+      - /models:/models:ro
+      - ./archive:/archive
+    environment:
+      - ARCHIVE_DIR=/archive
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "localhost:8303/health"]
       interval: 30s
       timeout: 10s
       retries: 3

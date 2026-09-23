@@ -70,3 +70,29 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  ocr-bina:
+    image: ocr-bina-worker:latest
+    build:
+      context: ./models/ocr-bina
+      args:
+        - PIP_PROXY=${PIP_PROXY:-}
+    ports:
+      - "127.0.0.1:8340:8340"
+    volumes:
+      - /models/ocr:/models/ocr:ro
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8340/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

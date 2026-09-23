@@ -26,7 +26,18 @@ Farsihoosh also extracts text from photos (model
 [Bina-0.2-Rizeh](https://huggingface.co/Reza2kn/Bina-0.2-Rizeh), permissive
 Apache-2.0 licence): try-it page [persian-ocr](https://farsihoosh.ir/persian-ocr)
 and docs [api-docs-ocr](https://farsihoosh.ir/api-docs-ocr).
-There is no ready OCR docker in this repo yet — for now only the weights link above.
+| Model | What it does | Weight licence | Folder |
+|---|---|---|---|
+| ocr-bina | Persian text extraction from photos (one image → JSON text) | Permissive (Apache-2.0) | [models/ocr-bina](models/ocr-bina) |
+
+```bash
+# Build and run (needs NVIDIA GPU):
+docker compose up -d --build ocr-bina
+
+# Health check and OCR:
+curl localhost:8340/health
+curl -s localhost:8340/ocr -F "file=@page.jpg"
+```
 
 ## Prerequisites
 

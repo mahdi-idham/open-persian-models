@@ -1,9 +1,9 @@
-# افزودن مدل جدید در ۵ قدم
+# Adding a new model in 5 steps
 
-۱. این پوشه را کپی کنید: `cp -r models/_template models/<model-name>`
-۲. داکرفایل را پر کنید: سورس انجین + SHA پین‌شده + دستور بیلد + فایل ورکر.
-۳. ورکر را بنویسید: دو مسیر کافی است — `POST /tts` برای صدا و `GET /health` برای سلامت.
-۴. در `docker-compose.yml` یک سرویس جدید با پورت متفاوت اضافه کنید.
-۵. بیلد و تست: `docker compose build` بعد `curl localhost:<PORT>/health`.
+1. Copy this folder: `cp -r models/_template models/<model-name>`
+2. Fill in the Dockerfile: engine source + pinned SHA + build command + worker file.
+3. Write the worker: two routes are enough — `POST /tts` for audio and `GET /health` for health.
+4. Add a service with a different port in `docker-compose.yml`.
+5. Build and test: `docker compose build` then `curl localhost:<PORT>/health`.
 
-قانون: هر مدل پوشه خودش را دارد؛ فایل مدل‌های دیگر دست نخورده می‌ماند.
+Rule: every model has its own folder; other models' files stay untouched.

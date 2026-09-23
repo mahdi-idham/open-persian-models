@@ -1,24 +1,24 @@
-# مدل pocket (فارسی، سبک، CPU)
+# Model pocket (Persian, light, CPU)
 
-انجین: [pocket-tts](https://github.com/kyutai-labs/pocket-tts) + وزن‌های
+Engine: [pocket-tts](https://github.com/kyutai-labs/pocket-tts) + weights
 [pocket-tts-farsi v1](https://huggingface.co/mehdi-hf/pocket-tts-farsi)
-(MIT؛ داده آموزشی CC0 — مناسب استفاده تجاری).
+(MIT; CC0 training data — fine for commercial use).
 
-## چرا pocket؟
+## Why pocket?
 
-- فقط CPU می‌خواهد (بدون کارت گرافیک)، حدود ۱ گیگ رم، سریع‌تر از مدل GPU نمونه.
-- تک‌صدا است (صدای `example_voice.wav`)؛ `instruct` و `seed` قبول می‌کند ولی نادیده می‌گیرد (هر بار یک اجرای تازه).
+- CPU only (no graphics card), about 1 GB RAM, faster than the sample GPU model.
+- Single voice (`example_voice.wav`); accepts `instruct` and `seed` but ignores them (a fresh take every time).
 
-## محدودیت‌ها
+## Limits
 
-- متن حداکثر ۱۵۰۰ کاراکتر؛ متن‌های بلند به تکه‌های ~۱۸ توکنی تقسیم می‌شوند.
-- حروف لاتین داخل متن فارسی حذف می‌شوند (نرمالایزر آموزشی) — برای متن خالص فارسی ایده‌آل است.
-- هم‌زمانی ۱ (قفل)؛ خروجی همیشه MP3 مونو ۶۴کیلوبیت + هدر `X-Model: pocket-fa-v1`.
+- Text max 1500 characters; long texts are split into ~18-token chunks.
+- Latin letters inside Persian text are dropped (training normalizer) — ideal for pure Persian text.
+- Concurrency 1 (lock); output is always mono 64kbps MP3 + `X-Model: pocket-fa-v1` header.
 
-## وزن‌های مدل
+## Model weights
 
-وزن‌ها داخل ایمیج نیستند؛ از اینجا دانلود کنید و در `/models/tts/pocket-fa/` بگذارید:
+Weights are NOT in the image; download them and put them in `/models/tts/pocket-fa/`:
 
 - [pocket-tts-farsi v1 on HuggingFace](https://huggingface.co/mehdi-hf/pocket-tts-farsi)
 
-فایل‌های لازم: `model.safetensors` + `tokenizer.model` + `farsi.yaml` + `normalize_fa.py` + `example_voice.wav`.
+Files needed: `model.safetensors` + `tokenizer.model` + `farsi.yaml` + `normalize_fa.py` + `example_voice.wav`.

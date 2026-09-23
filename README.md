@@ -1,90 +1,91 @@
-# هوش مصنوعی گفتار و نوشتار فارسی با داکر
+# Open Persian Models with Docker
 
-مجموعه داکرفایل‌های آماده برای اجرای مدل‌های فارسی: تبدیل **متن به گفتار**
-(TTS) روی کارت گرافیک یا CPU. نسخه زنده: [فارسی‌هوش](https://farsihoosh.ir)
+Ready-to-build Dockerfiles for running Persian models: Persian **text-to-speech**
+(TTS) on GPU or CPU. Live version: [Farsihoosh](https://farsihoosh.ir)
 
-## این ریپو چیست؟
+## What is this repo?
 
-اگر یک مدل TTS دارید و می‌خواهید آن را داخل داکر اجرا کنید، لازم نیست از صفر شروع کنید.
-اینجا برای هر مدل یک پوشه هست با سه چیز: `Dockerfile` + ورکر پایتون + راهنمای همان مدل.
-پوشه `models/_template` هم قالب خالی برای مدل بعدی است.
+If you have a TTS model and want to run it inside Docker, you do not need to
+start from zero. Each model has its own folder with three things: `Dockerfile` +
+Python worker + that model's guide. `models/_template` is an empty template
+for the next model.
 
-## مدل‌های موجود (TTS)
+## Available models (TTS)
 
-| مدل | چه کار می‌کند | مجوز وزن‌ها | پوشه |
+| Model | What it does | Weight licence | Folder |
 |---|---|---|---|
-| omnivoice | تبدیل متن فارسی به گفتار با چند صدا (زن، مرد، کودک و...) | غیرتجاری (CC-BY-NC-4.0) | [models/omnivoice](models/omnivoice) |
-| pocket | تبدیل متن فارسی به گفتار با یک صدا، فقط CPU (بدون گرافیک)، سریع | آزاد (MIT) | [models/pocket](models/pocket) |
-| pocket-v2 | تبدیل متن فارسی به گفتار با دو صدا (زن و مرد)، فقط CPU | غیرتجاری (CC-BY-NC-4.0) | [models/pocket-v2](models/pocket-v2) |
+| omnivoice | Persian text to speech with several voices (female, male, child, ...) | Non-commercial (CC-BY-NC-4.0) | [models/omnivoice](models/omnivoice) |
+| pocket | Persian text to speech with one voice, CPU-only (no graphics card), fast | Permissive (MIT) | [models/pocket](models/pocket) |
+| pocket-v2 | Persian text to speech with two voices (female and male), CPU-only | Non-commercial (CC-BY-NC-4.0) | [models/pocket-v2](models/pocket-v2) |
 
-مدل جدید اضافه شد، همین‌جا در جدول می‌آید. راهنمای افزودن مدل در [قالب](models/_template) است.
+When a new model is added, it appears in this table. The add-model guide is in the [template](models/_template).
 
-## تشخیص متن تصویر (OCR)
+## Image text extraction (OCR)
 
-فارسی‌هوش علاوه بر گفتار، استخراج متن از عکس هم دارد (مدل
-[Bina-0.2-Rizeh](https://huggingface.co/Reza2kn/Bina-0.2-Rizeh)، مجوز آزاد
-Apache-2.0): صفحه امتحان [persian-ocr](https://farsihoosh.ir/persian-ocr) و
-مستندات [api-docs-ocr](https://farsihoosh.ir/api-docs-ocr).
-داکر آماده OCR هنوز در این ریپو نیست — فعلاً فقط وزن‌ها در لینک بالا.
+Farsihoosh also extracts text from photos (model
+[Bina-0.2-Rizeh](https://huggingface.co/Reza2kn/Bina-0.2-Rizeh), permissive
+Apache-2.0 licence): try-it page [persian-ocr](https://farsihoosh.ir/persian-ocr)
+and docs [api-docs-ocr](https://farsihoosh.ir/api-docs-ocr).
+There is no ready OCR docker in this repo yet — for now only the weights link above.
 
-## پیش‌نیازها
+## Prerequisites
 
-- لینوکس (برای مدل omnivoice: کارت گرافیک NVIDIA حداقل ۸ گیگ VRAM؛ مدل‌های pocket و pocket-v2 فقط CPU می‌خواهند)
-- درایور NVIDIA + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (فقط برای omnivoice)
-- داکر + Docker Compose
-- فایل وزن‌های مدل (داخل ایمیج نمی‌آید؛ با volume وصل می‌شود)
+- Linux (for the omnivoice model: NVIDIA graphics card with at least 8 GB VRAM; pocket and pocket-v2 need CPU only)
+- NVIDIA driver + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (omnivoice only)
+- Docker + Docker Compose
+- The model weight files (never baked into the image; attached with a volume)
 
-## شروع سریع (مدل omnivoice)
+## Quickstart (omnivoice model)
 
 ```bash
-# ۱. مدل‌ها را جایی روی هاست بگذارید، مثلا:
+# 1. Put the weights somewhere on the host, e.g.:
 /models/tts/omnivoice-q4/
 
-# ۲. ffmpeg استاتیک را کنار داکرفایل بگذارید (۷۷ مگ، یک بار):
+# 2. Put a static ffmpeg next to the Dockerfile (77 MB, once):
 cd models/omnivoice && bash get_ffmpeg.sh && cd ../..
 
-# ۳. بیلد و اجرا:
+# 3. Build and run:
 docker compose up -d --build
 
-# ۴. تست سلامت و تولید صدا:
+# 4. Health check and speech generation:
 curl localhost:8300/health
 curl -s localhost:8300/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا","instruct":"female, young adult"}' -o out.mp3
 ```
 
-## شروع سریع (مدل pocket، فقط CPU)
+## Quickstart (pocket model, CPU only)
 
 ```bash
-# ۱. وزن‌ها را جایی روی هاست بگذارید، مثلا:
+# 1. Put the weights somewhere on the host, e.g.:
 /models/tts/pocket-fa/
 
-# ۲. ffmpeg استاتیک را کنار داکرفایل بگذارید (۷۷ مگ، یک بار):
+# 2. Put a static ffmpeg next to the Dockerfile (77 MB, once):
 cd models/pocket && bash get_ffmpeg.sh && cd ../..
 
-# ۳. بیلد و اجرا (بدون نیاز به GPU):
+# 3. Build and run (no GPU needed):
 docker compose up -d --build tts-pocket
 
-# ۴. تست سلامت و تولید صدا:
+# 4. Health check and speech generation:
 curl localhost:8302/health
 curl -s localhost:8302/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا"}' -o out.mp3
 ```
 
-## شروع سریع (مدل pocket-v2، فقط CPU، دو صدا)
+## Quickstart (pocket-v2 model, CPU only, two voices)
 
 ```bash
-# ۱. وزن‌ها را جایی روی هاست بگذارید، مثلا:
+# 1. Put the weights somewhere on the host, e.g.:
 /models/tts/pocket-fa-v2/
-# و مدل G2P (تبدیل متن به واج):
+# And the G2P model (text to phonemes):
 /models/g2p/Homo-GE2PE-Persian-HF/
 
-# ۲. ffmpeg استاتیک را کنار داکرفایل بگذارید (۷۷ مگ، یک بار):
+# 2. Put a static ffmpeg next to the Dockerfile (77 MB, once):
 cd models/pocket-v2 && bash get_ffmpeg.sh && cd ../..
 
-# ۳. بیلد و اجرا (بدون نیاز به GPU):
+# 3. Build and run (no GPU needed):
 docker compose up -d --build tts-pocketv2
 
-# ۴. تست سلامت و تولید صدا (زن و مرد):
+# 4. Health check and speech generation (female and male):
 curl localhost:8303/health
 curl -s localhost:8303/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا","voice":"female"}' -o out-f.mp3
@@ -92,37 +93,38 @@ curl -s localhost:8303/tts -H 'Content-Type: application/json' \
   -d '{"text":"سلام دنیا","voice":"male"}' -o out-m.mp3
 ```
 
-## چطور کار می‌کند؟
+## How it works
 
 ```
-POST /tts {text} → ورکر → انجین TTS (GPU یا CPU) → WAV → ffmpeg → MP3 64k → جواب
+POST /tts {text} → worker → TTS engine (GPU or CPU) → WAV → ffmpeg → 64k MP3 → answer
 GET /health → {"ok": true}
 ```
 
-- ورکر با پایتون خالص نوشته شده (بدون فریم‌ورک) و یک قفل دارد: هر بار فقط یک سنتز.
-- متن فارسی قبل از تولید نرمالایز می‌شود (حروف عربی به فارسی، حذف تشکیلات اضافه).
-- خروجی MP3 مونو ۶۴کیلوبیت است؛ برای اینترنت کم‌سرعت بهینه شده.
+- The worker is plain Python (no framework) with one lock: one synthesis at a time.
+- Persian text is normalized before generation (Arabic letters to Persian, extra Tashkeel removed).
+- Output is mono 64kbps MP3, optimized for slow connections.
 
-## افزودن مدل جدید
+## Adding a new model
 
-۱. `cp -r models/_template models/<model-name>`
-۲. داکرفایل را پر کنید (سورس انجین + SHA پین‌شده + دستور بیلد).
-۳. ورکر را بنویسید (دو مسیر کافی است: `POST /tts` و `GET /health`).
-۴. در `docker-compose.yml` یک سرویس با پورت متفاوت اضافه کنید.
-۵. بیلد و تست مثل شروع سریع.
+1. `cp -r models/_template models/<model-name>`
+2. Fill in the Dockerfile (engine source + pinned SHA + build command).
+3. Write the worker (two routes are enough: `POST /tts` and `GET /health`).
+4. Add a service with a different port in `docker-compose.yml`.
+5. Build and test like the quickstarts.
 
-راهنمای کامل در `models/_template/README.md` است.
+The full guide is in `models/_template/README.md`.
 
-## نکته برای شبکه‌های فیلترشده
+## Note for filtered networks
 
-اگر `git clone` داخل بیلد به گیت‌هاب وصل نمی‌شود، بیلد را با پروکسی SOCKS اجرا کنید:
+If `git clone` inside the build cannot reach GitHub, build with a SOCKS proxy:
 
 ```bash
 docker build --network=host --build-arg GIT_PROXY_URL=socks5h://127.0.0.1:10808 models/omnivoice/
 ```
 
-## لایسنس
+## Licence
 
-فایل‌های این ریپو MIT — آزاد استفاده و تغییر بدهید. دقت کنید **وزن مدل‌ها
-مجوز خودشان را دارند**: pocket آزاد (MIT)، ولی omnivoice و pocket-v2
-**فقط غیرتجاری** (CC-BY-NC-4.0) و مدل OCR آزاد (Apache-2.0) است.
+This repo's files are MIT — use and modify freely. Note that **model weights
+have their own licences**: pocket is permissive (MIT), but omnivoice and
+pocket-v2 are **non-commercial only** (CC-BY-NC-4.0) and the OCR model is
+permissive (Apache-2.0).

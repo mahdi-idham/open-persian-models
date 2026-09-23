@@ -1,7 +1,7 @@
-# داکر فارسی TTS
+# هوش مصنوعی گفتار و نوشتار فارسی با داکر
 
-مجموعه داکرفایل‌های آماده برای ساخت سرویس تبدیل متن به گفتار (TTS) روی کارت گرافیک.
-هر مدل، پوشه خودش را دارد. نسخه زنده: [فارسی‌هوش](https://farsihoosh.ir)
+مجموعه داکرفایل‌های آماده برای اجرای مدل‌های فارسی: تبدیل **متن به گفتار**
+(TTS) روی کارت گرافیک یا CPU. نسخه زنده: [فارسی‌هوش](https://farsihoosh.ir)
 
 ## این ریپو چیست؟
 
@@ -9,20 +9,28 @@
 اینجا برای هر مدل یک پوشه هست با سه چیز: `Dockerfile` + ورکر پایتون + راهنمای همان مدل.
 پوشه `models/_template` هم قالب خالی برای مدل بعدی است.
 
-## مدل‌های موجود
+## مدل‌های موجود (TTS)
 
-| مدل | چه کار می‌کند | پوشه |
-|---|---|---|
-| omnivoice | تبدیل متن فارسی به گفتار با چند صدا (زن، مرد، کودک و...) | [models/omnivoice](models/omnivoice) |
-| pocket | تبدیل متن فارسی به گفتار با یک صدا، فقط CPU (بدون گرافیک)، سریع | [models/pocket](models/pocket) |
-| pocket-v2 | تبدیل متن فارسی به گفتار با دو صدا (زن و مرد)، فقط CPU — غیرتجاری | [models/pocket-v2](models/pocket-v2) |
+| مدل | چه کار می‌کند | مجوز وزن‌ها | پوشه |
+|---|---|---|---|
+| omnivoice | تبدیل متن فارسی به گفتار با چند صدا (زن، مرد، کودک و...) | غیرتجاری (CC-BY-NC-4.0) | [models/omnivoice](models/omnivoice) |
+| pocket | تبدیل متن فارسی به گفتار با یک صدا، فقط CPU (بدون گرافیک)، سریع | آزاد (MIT) | [models/pocket](models/pocket) |
+| pocket-v2 | تبدیل متن فارسی به گفتار با دو صدا (زن و مرد)، فقط CPU | غیرتجاری (CC-BY-NC-4.0) | [models/pocket-v2](models/pocket-v2) |
 
 مدل جدید اضافه شد، همین‌جا در جدول می‌آید. راهنمای افزودن مدل در [قالب](models/_template) است.
 
+## تشخیص متن تصویر (OCR)
+
+فارسی‌هوش علاوه بر گفتار، استخراج متن از عکس هم دارد (مدل
+[Bina-0.2-Rizeh](https://huggingface.co/Reza2kn/Bina-0.2-Rizeh)، مجوز آزاد
+Apache-2.0): صفحه امتحان [persian-ocr](https://farsihoosh.ir/persian-ocr) و
+مستندات [api-docs-ocr](https://farsihoosh.ir/api-docs-ocr).
+داکر آماده OCR هنوز در این ریپو نیست — فعلاً فقط وزن‌ها در لینک بالا.
+
 ## پیش‌نیازها
 
-- لینوکس (برای مدل omnivoice: کارت گرافیک NVIDIA حداقل ۸ گیگ VRAM؛ مدل pocket فقط CPU می‌خواهد)
-- درایور NVIDIA + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+- لینوکس (برای مدل omnivoice: کارت گرافیک NVIDIA حداقل ۸ گیگ VRAM؛ مدل‌های pocket و pocket-v2 فقط CPU می‌خواهند)
+- درایور NVIDIA + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (فقط برای omnivoice)
 - داکر + Docker Compose
 - فایل وزن‌های مدل (داخل ایمیج نمی‌آید؛ با volume وصل می‌شود)
 
@@ -87,7 +95,7 @@ curl -s localhost:8303/tts -H 'Content-Type: application/json' \
 ## چطور کار می‌کند؟
 
 ```
-POST /tts {text} → ورکر → انجین TTS ( host GPU ) → WAV → ffmpeg → MP3 64k → جواب
+POST /tts {text} → ورکر → انجین TTS (GPU یا CPU) → WAV → ffmpeg → MP3 64k → جواب
 GET /health → {"ok": true}
 ```
 
@@ -115,4 +123,6 @@ docker build --network=host --build-arg GIT_PROXY_URL=socks5h://127.0.0.1:10808 
 
 ## لایسنس
 
-MIT — آزاد استفاده و تغییر بدهید.
+فایل‌های این ریپو MIT — آزاد استفاده و تغییر بدهید. دقت کنید **وزن مدل‌ها
+مجوز خودشان را دارند**: pocket آزاد (MIT)، ولی omnivoice و pocket-v2
+**فقط غیرتجاری** (CC-BY-NC-4.0) و مدل OCR آزاد (Apache-2.0) است.

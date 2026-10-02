@@ -39,9 +39,37 @@ curl localhost:8340/health
 curl -s localhost:8340/ocr -F "file=@page.jpg"
 ```
 
+## Image generation (IMG)
+
+Farsihoosh also generates images, using the **GGUF** build of Qwen-Image-2.1
+([gguf-org/qwen-image-2.1-gguf](https://huggingface.co/gguf-org/qwen-image-2.1-gguf))
+with the MIT `ggk` engine, on one NVIDIA GPU.
+
+| Model | What it does | Weight licence | Folder |
+|---|---|---|---|
+| qwen-image-2.1-gguf | Text to image, 512x512, GGUF build (no diffusers) | **Other / upstream Qwen terms - unresolved** | [models/img](models/img) |
+
+> **Preview, and the licence is NOT resolved.** The worker code here is
+> complete, but the image build has not been verified end to end and the
+> text-encoder dependency is not pinned. The **weights are not in this repo**
+> and their licence ("other") has not been cleared here. Read the model card
+> before any commercial use. See [models/img](models/img) for details.
+
+> **Security:** this worker has **no authentication** and binds to `127.0.0.1`
+> by default. Do not expose it to a network you do not control. Read
+> [models/img](models/img) before deploying it.
+
+```bash
+# Needs an NVIDIA GPU (~8 GB VRAM) and the GGUF weights mounted at /models:
+docker build -t qwen-img-worker:latest models/img/
+docker run --rm --gpus all -p 127.0.0.1:9412:9412 \
+  -v /your/host/dir:/models:ro qwen-img-worker:latest
+curl localhost:9412/health
+```
+
 ## Prerequisites
 
-- Linux (for the omnivoice model: NVIDIA graphics card with at least 8 GB VRAM; pocket and pocket-v2 need CPU only)
+- Linux (for the omnivoice and img models: NVIDIA graphics card with at least 8 GB VRAM; pocket and pocket-v2 need CPU only)
 - NVIDIA driver + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (omnivoice only)
 - Docker + Docker Compose
 - The model weight files (never baked into the image; attached with a volume)
@@ -136,6 +164,16 @@ docker build --network=host --build-arg GIT_PROXY_URL=socks5h://127.0.0.1:10808 
 ## Licence
 
 This repo's files are MIT — use and modify freely. Note that **model weights
-have their own licences**: pocket is permissive (MIT), but omnivoice and
-pocket-v2 are **non-commercial only** (CC-BY-NC-4.0) and the OCR model is
-permissive (Apache-2.0).
+have their own licences**, and they differ per model:
+
+| Model | Weight licence | Commercial use |
+|---|---|---|
+| pocket | MIT | yes |
+| ocr-bina | Apache-2.0 | yes |
+| omnivoice | CC-BY-NC-4.0 | **no** — non-commercial only |
+| pocket-v2 | CC-BY-NC-4.0 | **no** — non-commercial only |
+| qwen-image-2.1-gguf | **Other (upstream Qwen terms)** | **unresolved — read the model card** |
+
+No weights are redistributed in this repo; every model is fetched separately and
+each one keeps its own terms. Where a licence is marked non-commercial or
+unresolved, clearing it is your responsibility before you build anything on top.
